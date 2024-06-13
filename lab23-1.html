@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Day of the Week</title>
+</head>
+<body>
+    <script>
+        const daysOfWeek = {
+            ua: ["Понеділок", "Вівторок", "Середа", "Четвер", "П'ятниця", "Субота", "Неділя"],
+            en: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
+        };
+
+        function getUserInput(promptMessage) {
+            return prompt(promptMessage).trim().toLowerCase();
+        }
+
+        function displayDay() {
+            let language = getUserInput("Оберіть мову ('ua' або 'en'):");
+            
+            while (!['ua', 'en'].includes(language)) {
+                alert("Неправильне введення. Спробуйте ще раз.");
+                language = getUserInput("Оберіть мову ('ua' або 'en'):");
+            }
+
+            let dayNumber = parseInt(getUserInput(language === 'ua' ? "Введіть номер дня тижня (1-7):" : "Enter the day number of the week (1-7):"));
+
+            while (isNaN(dayNumber) || dayNumber < 1 || dayNumber > 7) {
+                alert("Неправильне введення. Спробуйте ще раз.");
+                dayNumber = parseInt(getUserInput(language === 'ua' ? "Введіть номер дня тижня (1-7):" : "Enter the day number of the week (1-7):"));
+            }
+
+            alert(daysOfWeek[language][dayNumber - 1]);
+        }
+
+        displayDay();
+    </script>
+</body>
+</html>

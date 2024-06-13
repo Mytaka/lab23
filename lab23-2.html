@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Energy Management</title>
+</head>
+<body>
+    
+    <script>
+        class EnergySource {
+            constructor(capacity) {
+                this.capacity = capacity; // у мегаватах
+            }
+
+            dayOutput() {
+                return this.capacity;
+            }
+
+            nightOutput() {
+                return this.capacity;
+            }
+        }
+
+        class PhotovoltaicPanel {
+            constructor(dayCapacity) {
+                this.dayCapacity = dayCapacity; // у мегаватах
+            }
+
+            dayOutput() {
+                return this.dayCapacity;
+            }
+
+            nightOutput() {
+                return 0;
+            }
+        }
+
+        class ApartmentComplex {
+            constructor(units) {
+                this.units = units;
+            }
+
+            dayUsage() {
+                return this.units * 4 / 1000; // у мегаватах
+            }
+
+            nightUsage() {
+                return this.units * 1 / 1000; // у мегаватах
+            }
+        }
+
+        class TransmissionLine {
+            constructor(maxCapacity, cost) {
+                this.maxCapacity = maxCapacity; // у мегаватах
+                this.cost = cost; // вартість за мегават
+            }
+        }
+
+        class ElectricalGrid {
+            constructor() {
+                this.energySources = [];
+                this.photovoltaicPanels = [];
+                this.apartmentComplexes = [];
+                this.transmissionLines = [];
+            }
+
+            addEnergySource(source) {
+                this.energySources.push(source);
+            }
+
+            addPhotovoltaicPanel(panel) {
+                this.photovoltaicPanels.push(panel);
+            }
+
+            addApartmentComplex(complex) {
+                this.apartmentComplexes.push(complex);
+            }
+
+            addTransmissionLine(line) {
+                this.transmissionLines.push(line);
+            }
+
+            calculateNetBalanceAndCost() {
+                const totalDayOutput = this.energySources.reduce((sum, source) => sum + source.dayOutput(), 0) +
+                    this.photovoltaicPanels.reduce((sum, panel) => sum + panel.dayOutput(), 0);
+
+                const totalNightOutput = this.energySources.reduce((sum, source) => sum + source.nightOutput(), 0);
+
+                const totalDayUsage = this.apartmentComplexes.reduce((sum, complex) => sum + complex.dayUsage(), 0);
+
+                const totalNightUsage = this.apartmentComplexes.reduce((sum, complex) => sum + complex.nightUsage(), 0);
+
+                const dayNetBalance = totalDayOutput - totalDayUsage;
+                const nightNetBalance = totalNightOutput - totalNightUsage;
+
+                let dayNetCost = 0;
+                let nightNetCost = 0;
+
+                if (dayNetBalance < 0) {
+                    const shortage = -dayNetBalance;
+                    const suitableLine = this.transmissionLines.find(line => line.maxCapacity >= shortage);
+                    if (suitableLine) {
+                        dayNetCost = shortage * suitableLine.cost;
+                    }
+                } else if (dayNetBalance > 0) {
+                    const surplus = dayNetBalance;
+                    const suitableLine = this.transmissionLines.find(line => line.maxCapacity >= surplus);
+                    if (suitableLine) {
+                        dayNetCost = surplus * suitableLine.cost;
+                    }
+                }
+
+                if (nightNetBalance < 0) {
+                    const shortage = -nightNetBalance;
+                    const suitableLine = this.transmissionLines.find(line => line.maxCapacity >= shortage);
+                    if (suitableLine) {
+                        nightNetCost = shortage * suitableLine.cost;
+                    }
+                } else if (nightNetBalance > 0) {
+                    const surplus = nightNetBalance;
+                    const suitableLine = this.transmissionLines.find(line => line.maxCapacity >= surplus);
+                    if (suitableLine) {
+                        nightNetCost = surplus * suitableLine.cost;
+                    }
+                }
+
+                return { dayNetBalance, nightNetBalance, dayNetCost, nightNetCost };
+            }
+        }
+
+        // Приклад:
+        const grid = new ElectricalGrid();
+        grid.addEnergySource(new EnergySource(10));
+        grid.addPhotovoltaicPanel(new PhotovoltaicPanel(5));
+        grid.addApartmentComplex(new ApartmentComplex(100));
+        grid.addTransmissionLine(new TransmissionLine(100, 50));
+
+        const result = grid.calculateNetBalanceAndCost();
+
+        console.log(`Денний баланс: ${result.dayNetBalance} МВт, Вартість: ${result.dayNetCost}`);
+        console.log(`Нічний баланс: ${result.nightNetBalance} МВт, Вартість: ${result.nightNetCost}`);
+    </script>
+</body>
+</html>
